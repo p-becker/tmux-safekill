@@ -18,8 +18,14 @@ function safe_end_procs {
       cmd='Enter "~."'
     elif [[ "$pane_proc" == "psql" ]]; then
       cmd='Enter "\q"'
+    elif [[ "$pane_proc" == "ruby" ]]; then
+      additional_cmd='C-d'
     fi
-    echo $cmd | xargs tmux send-keys -t "$pane_id"
+    echo "$cmd" | xargs tmux send-keys -t "$pane_id"
+
+    if [ -n "$additional_cmd" ]; then
+      echo "$additional_cmd" | xargs tmux send-keys -t "$pane_id"
+    fi
   done
   IFS="$old_ifs"
 }
@@ -30,7 +36,7 @@ function safe_kill_panes_of_current_session {
 
   SAVEIFS="$IFS"
   IFS=$'\n'
-  array=($current_panes)
+  array=("$current_panes")
   # Restore IFS
   IFS=$SAVEIFS
   for (( i=0; i<${#array[@]}; i++ ))
